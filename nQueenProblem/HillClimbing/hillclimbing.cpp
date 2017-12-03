@@ -15,6 +15,8 @@ int countAttack(const vector<int>& queen)
         for(int j = i + 1 ; j < n ; j++)
         {
             //if(check[j]) continue;
+
+            ///In the begin has avoid the same row and the same column
             if(queen[i] == queen[j])
                 cnt++, check[j] = true;
             if( abs(queen[i] - queen[j]) == abs(i - j))
@@ -42,7 +44,7 @@ int hillclimbing(vector<int> queen)
         atk = countAttack(queen);
 
         for(int i = 0 ; i < n ; i++)
-        {
+        {/// neighbor will be randomly swap two position of two queen
             vector<int> tmp(queen);
             int t = rand() % n;
 
@@ -55,14 +57,18 @@ int hillclimbing(vector<int> queen)
         }
 
         for(int i = 0 ; i < n ; i++)
-        {
+        {///every neighbor's heuristic
             informed[i] = countAttack(neighbor[i]);
         }
+
+
         mini = 0;
         for(int i = 1 ; i < n ; i++)
-        {
+        {///find the best neighbor
             if(informed[i] < informed[mini])
                 mini = i;
+
+            //if the heuristic is equal to the current neighbor, randomly choose
             if(informed[i] == informed[mini])
                 if(rand() & 1)
                     mini = i;
@@ -70,7 +76,8 @@ int hillclimbing(vector<int> queen)
 
         if(countAttack(neighbor[mini]) > atk || atk == 0)
         {
-             break ;
+            ///if it is a solution or a optimize solution then break
+            break ;
         }
         queen = neighbor[mini];
     }
@@ -99,7 +106,7 @@ int main()
     clock_t t1, t2;
     cin >> nqueen;
 
-    srand(time(NULL));
+    srand(time(NULL));          //set the random seed
     while(round < 30)
     {
         //cout << "Input two numbers, one is number of queen and the other one is number of round.\n";
@@ -115,11 +122,14 @@ int main()
         for(int i = 0 ; i < nqueen ; i++)
         {
             int tmp;
+
             do
             {
                 tmp = rand() % nqueen;
             }while(check[tmp]);
             check[tmp] = 1;
+            ///avoid the same column and row
+
             q.push_back(tmp);
         }
 
