@@ -5,20 +5,22 @@ using namespace std;
 #define oo 1000007
 
 int n;          //n-queen
-int children, GENERATION, POPULATION;
+int GENERATION, POPULATION;
 double cross_rate;
 
 struct Data
 {
+
     vector<int> queen;        //queen¦ì¸m
     int attack;             //queenªºattack¼Æ
     void init()
     {
         queen.clear();
         for(int i = 0 ; i < n ; i++)
-            queen.push_back(rand() % n);
+            queen.push_back(i);
         random_shuffle(queen.begin(), queen.end());
         countAttack();
+        //printQueen();
     }
     void countAttack()
     {
@@ -61,19 +63,42 @@ void initialization(vector<Data>& q)
     {
         Data tmp;
         tmp.init();
-        //cout << tmp.attack << endl;
+
         q.push_back(tmp);
     }
 }
 
+
 Data cross(const Data& a, const Data& b)
-{///O(n)
-    int crosspoint1 = rand() % n ;
+{///O((n / 2) ^ 2)
+    int crosspoint1 = rand() % (n / 2) + n / 2 ;
+    int maplist[n + 1];
     Data chi;
 
+    for(int i = 0 ; i < n ; i++)
+        maplist[i] = -1;
+
+
+    ///list the map list
+    for(int i = crosspoint1 ; i < n ; i++)
+        maplist[a.queen[i]] = b.queen[i];
+
+
     chi.queen.clear();
+
+
     for(int i = 0 ; i < crosspoint1 ; i++)
-        chi.queen.push_back(b.queen[i]);
+    {
+        int tmp1 = b.queen[i];
+        while(maplist[tmp1] != -1)
+        {
+            //find it map value;
+            tmp1 = maplist[tmp1];
+        }
+
+        chi.queen.push_back(tmp1);
+
+    }
     for(int i = crosspoint1 ; i < n ; i++)
         chi.queen.push_back(a.queen[i]);
 
@@ -99,30 +124,29 @@ void crossover(vector<Data>& parent)
 
         tmp = cross(p1, p2);
         tmp.countAttack();
-        //tmp.printQueen();
         parent.push_back(tmp);
-    }
-    //for(int i = 0 ; i < ch_size ; i++)
-    //    children[i].countAttack();
 
+    }
 }
 
+
 void mutation(vector<Data>& child)
-{///O(POPULATION * crossrate * n * n)
-    for(int i= POPULATION ; i < child.size() ; i++)
+{///O(POPULATION * crossrate * n ^ 2)
+
+    for(int i = POPULATION ; i < child.size() ; i++)
     {
+        //mutation is swap random index x and y;
         int x, y;
         x = rand() % n;
         y = rand() % n;
         while(y == x) y = rand() % n;
 
-        child[i].queen[x] = y;
+        child[i].queen[x] ^= child[i].queen[y] ^= child[i].queen[x] ^= child[i].queen[y];
 
         child[i].countAttack();
     }
 
 }
-
 
 int geneAlgorithm()
 {
@@ -133,30 +157,14 @@ int geneAlgorithm()
     while(iter < GENERATION)
     {
 
-        //cout << rand() % n << " " << rand() % n << endl;
-        vector<Data> children;
-        //calculate(q);
-        //cp_q = reproduction(q);
         crossover(q);
         mutation(q);
         sort(q.begin(), q.end());
 
-
-        //cout << q[0].attack << " "<< q[q.size() - 1].attack << endl;
+        //select next population
         q.erase(q.begin() + POPULATION, q.end());
 
-        //random_shuffle(q.begin(), q.end());
-        /*
-        for(int i = 0 ; i < min(((long long) (POPULATION * cross_rate)), (long long) children.size()) ; i++)
-        {
-            q[i] = children[i];
-            children[i].printQueen();
-            printf("~%d\n", children[i].attack);
-        }
-        */
-        //cout << endl;
-        //cout << iter << endl;
-        //q[0].printQueen();
+
         if(q[0].attack == 0)
             break;
         iter++;
@@ -165,11 +173,9 @@ int geneAlgorithm()
     return q[0].attack;
 }
 
-
-
 int main()
 {
-    int curAttack, run;
+    int curAttack, run, success(0);
     long double avgAttack(0), avgTime(0), t;
     clock_t t1, t2;
     cin >> n >> POPULATION >> cross_rate >> GENERATION >> run;
@@ -182,12 +188,13 @@ int main()
         avgAttack += curAttack;
         avgTime += t;
 
-        cout << "The " << i + 1 << " run , the number of attack queen is " << curAttack << " in " << t << " seconds.\n";
+        if(!curAttack) success++;
+        cout << "The " << i + 1 << " run , the number of attack queen is " << curAttack << " cost " << t << " seconds.\n";
 
     }
-    system("pause");
+    cout << "Average attack : " << avgAttack / run << "\nAverage Time to find a solution : " << avgTime / run << "s\n";
+    cout << "Success rate : " << success << "/" << run << endl;
 
+    system("pause");
     return 0;
 }
-
-

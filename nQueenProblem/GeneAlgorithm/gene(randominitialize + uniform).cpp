@@ -175,6 +175,7 @@ int main()
         cout << "The " << i + 1 << " run , the number of attack queen is " << curAttack << " in " << t << " seconds.\n";
 
     }
+    system("pause");
 
     return 0;
 }
