@@ -1,20 +1,15 @@
 import numpy as np
 import pandas as pd
+import csv
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from sklearn.tree import DecisionTreeClassifier
 
-
 traindata = pd.read_csv("TraData.csv")
 
 
-print(traindata.columns)
-print(traindata.index)
-
 X = np.array(traindata.iloc[:,0:12])
 y = np.array(traindata.iloc[:,12])
-
-#print(y) 
 
 for i in range(0, 12) :
     x = X[:, i]
@@ -23,26 +18,17 @@ for i in range(0, 12) :
     le = preprocessing.LabelEncoder()
     le.fit(x)
     X[:,i] = le.transform(x)
-    #print(X[:, i])
-                                                                                        
+   
 
-#print(X)
-#print(type(y))
+clf = DecisionTreeClassifier(criterion='entropy', splitter='random')
+clf.fit(X, y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-
-clf = DecisionTreeClassifier(max_leaf_nodes=10, random_state=0)
-clf.fit(X_train, y_train)
-
-#print(clf.feature_importances_)
-print(list(zip(traindata.columns, clf.feature_importances_)))
+print(clf.feature_importances_)
+print(clf.score(X, y))
 
 testdata = pd.read_csv("input.csv")
 
 test_x = np.array(testdata.iloc[:, 0:12])
-#test_y = np.array(testdata.iloc[:, 12])
-
-
 
 for i in range(0, 12) :
     x = test_x[:, i]
@@ -53,7 +39,6 @@ for i in range(0, 12) :
     test_x[:,i] = le.transform(x)
 
 pre_x = clf.predict(test_x)
-print(pre_x)
 
 countClick = [0, 0]
 for i in pre_x :
@@ -63,5 +48,8 @@ for i in pre_x :
         countClick[1] += 1
 
 print(countClick)
-
+with open('output.csv', "w") as output:
+  writer = csv.writer(output, lineterminator='\n')
+  for val in pre_x:
+    writer.writerow([val])
 
