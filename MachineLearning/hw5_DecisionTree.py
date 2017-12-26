@@ -48,7 +48,7 @@ for i in pre_x :
         countClick[1] += 1
 
 print(countClick)
-with open('output.csv', "w") as output:
+with open('output3.csv', "w") as output:
   writer = csv.writer(output, lineterminator='\n')
   for val in pre_x:
     writer.writerow([val])
