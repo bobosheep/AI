@@ -26,7 +26,7 @@ X = np.array(traindata.iloc[:, 0:12])
 
 ##build decision tree
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 0.1, random_state=100)
-clf = DecisionTreeClassifier(criterion='entropy', min_samples_split=5,random_state=32)
+clf = DecisionTreeClassifier(criterion='gini', splitter='best', min_samples_split=5,random_state=32)
 clf.fit(X_train, y_train)
 
 print('Finish DT training')

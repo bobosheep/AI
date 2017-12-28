@@ -29,10 +29,10 @@ y = np.array(traindata.iloc[:,12])
 
 ##build decision tree
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 0.1, random_state=10)
-clf = RandomForestClassifier(n_estimators=100, n_jobs=3, random_state=39)
+clf = RandomForestClassifier(n_estimators=80, n_jobs=3, random_state=39, criterion='entropy')
 clf.fit(X_train, y_train)
 
-print('Finish DT training')
+print('Finish RF training')
 
 predicttest = clf.predict(X_test)
 
@@ -60,16 +60,19 @@ print('F-measure: {0}'.format(f_measure))
 
 
 testdata = pd.read_csv("input.csv")
+testdata = testdata.fillna('0')
 
+##Label Encode
+for idx in testdata.columns:
+    if idx != 'campaignId' and idx != 'advertiserId' :
+        x = testdata[idx]
+        #print(x)
+        le = preprocessing.LabelEncoder()
+        le.fit(x)
+        testdata[idx] = le.transform(x)
+        
 test_x = np.array(testdata.iloc[:, 0:12])
 
-for i in range(0, 12) :
-    x = test_x[:, i]
-    for j in range(0, len(x)) :
-        x[j] = str(x[j]) 
-    le = preprocessing.LabelEncoder()
-    le.fit(x)
-    test_x[:,i] = le.transform(x)
 
 pre_x = clf.predict(test_x)
 print(pre_x)
