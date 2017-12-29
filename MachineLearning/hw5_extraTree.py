@@ -1,10 +1,11 @@
+import csv
 import numpy as np
 import pandas as pd
-import csv
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import ExtraTreeClassifier
 from sklearn.metrics import confusion_matrix
+
 
 traindata = pd.read_csv("TraData.csv")
 traindata = traindata.fillna('0')
@@ -20,16 +21,18 @@ for idx in traindata.columns:
 
 print('Finish Label Encode')
 
+
 ##Get dataset
+X = np.array(traindata.iloc[:,2:12])
 y = np.array(traindata.iloc[:,12])
-X = np.array(traindata.iloc[:, 2:12])
+
 
 ##build decision tree
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 0.1, random_state=11)
-clf = DecisionTreeClassifier(criterion='gini', splitter='random',random_state=50)
+clf = ExtraTreeClassifier(random_state=11, criterion='gini', splitter='random')
 clf.fit(X_train, y_train)
 
-print('Finish DT training')
+print('Finish RF training')
 
 predicttest = clf.predict(X_test)
 
@@ -42,7 +45,6 @@ for i in predicttest :
         countClick[1] += 1
 
 print(countClick)
-
 
 ##get accuracy, precision, recall, f_measure
 tn, fp, fn, tp = confusion_matrix(y_test, predicttest).ravel()
@@ -68,10 +70,12 @@ for idx in testdata.columns:
         le = preprocessing.LabelEncoder()
         le.fit(x)
         testdata[idx] = le.transform(x)
-
+        
 test_x = np.array(testdata.iloc[:, 2:12])
 
+
 pre_x = clf.predict(test_x)
+print(pre_x)
 
 countClick = [0, 0]
 for i in pre_x :
@@ -81,7 +85,8 @@ for i in pre_x :
         countClick[1] += 1
 
 print(countClick)
-with open('DT1_11_50.csv', "w") as output:
+
+with open('ExtT1_11_11.csv', "w") as output:
   writer = csv.writer(output, lineterminator='\n')
   for val in pre_x:
     writer.writerow([val])
