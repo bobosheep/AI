@@ -10,29 +10,69 @@ from sklearn.metrics import confusion_matrix
 traindata = pd.read_csv("TraData.csv")
 traindata = traindata.fillna('0')
 
-##Label Encode
+
+traindata = traindata.drop(columns=['adx', 'dclkVerticals'])
+
 for idx in traindata.columns:
+    #print(idx)
+    """
+    app = x['spaceType'] == 'app'                   #0
+    site = x['spaceType'] == 'site'                 #1
+    spaceid = x['spaceId']                          # 2
+    spacecat = x['spaceCat']                        # 3
+    adtype = x['adType']                            # 4
+    ip = x['ip']                                    # 5
+    android = x['os'] == 'Android'                  #6
+    blackberry = x['os'] == 'BlackBerry'            #7
+    ios = x['os'] == 'iOS'                          #8
+    ipad = x['os'] == 'ipad'                        #9
+    iphone = x['os'] == 'iphone'                    #10
+    linux = x['os'] == 'Linux'                      #11
+    mac = x['os'] == 'mac'                          #12
+    osx = x['os'] == 'OS X'                         #13    
+    others = x['os'] == 'others'                    #14    
+    unknown = x['os'] == 'Unknown'                  #15
+    windows = x['os'] == 'Windows'                  #16
+    wphone = x['os'] == 'Windows Phone'             #17
+    phone = x['deviceType'] == 'Phone'              #18
+    computer = x['deviceType'] == 'Computer'        #19
+    tablet = x['deviceType'] == 'Tablet'            #20
+    publisherId = x['publisherId']                  # 21
+    campaignId = int(x['campaignId'])               #22
+    advertiserId  = int(x['advertiserId'])          #23
+    click = x['click'] == '1'                       #24
+
+    data.append([app, site, spaceid, spacecat, adtype, ip, android, blackberry, ios, ipad, iphone,
+          linux, mac, osx, others, unknown, windows, wphone, phone, computer, tablet,
+          publisherId, campaignId, advertiserId, click])
+    
+    """
     if idx != 'campaignId' and idx != 'advertiserId' and idx != 'click':
         x = traindata[idx]
         #print(x)
         le = preprocessing.LabelEncoder()
         le.fit(x)
         traindata[idx] = le.transform(x)
+    
+
+#data = np.array(data)
+
 
 print('Finish Label Encode')
 
 
+clf = ExtraTreeClassifier(random_state=103, splitter='random', max_features=9)
+
 ##Get dataset
-X = np.array(traindata.iloc[:,2:12])
-y = np.array(traindata.iloc[:,12])
+X = np.array(traindata.iloc[:,:10])
+y = np.array(traindata.iloc[:,10])
 
 
 ##build decision tree
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size= 0.1, random_state=11)
-clf = ExtraTreeClassifier(random_state=11, criterion='gini', splitter='random')
 clf.fit(X_train, y_train)
 
-print('Finish RF training')
+print('Finish Extra tree training')
 
 predicttest = clf.predict(X_test)
 
@@ -43,7 +83,6 @@ for i in predicttest :
         countClick[0] += 1
     else :
         countClick[1] += 1
-
 print(countClick)
 
 ##get accuracy, precision, recall, f_measure
@@ -62,16 +101,18 @@ print('F-measure: {0}'.format(f_measure))
 testdata = pd.read_csv("input.csv")
 testdata = testdata.fillna('0')
 
+
+testdata = testdata.drop(columns=['adx', 'dclkVerticals'])
 ##Label Encode
 for idx in testdata.columns:
     if idx != 'campaignId' and idx != 'advertiserId' :
         x = testdata[idx]
-        #print(x)
-        le = preprocessing.LabelEncoder()
-        le.fit(x)
-        testdata[idx] = le.transform(x)
-        
-test_x = np.array(testdata.iloc[:, 2:12])
+     #print(x)
+    le = preprocessing.LabelEncoder()
+    le.fit(x)
+    testdata[idx] = le.transform(x)
+                    
+test_x = np.array(testdata.iloc[:,:10])
 
 
 pre_x = clf.predict(test_x)
@@ -86,8 +127,8 @@ for i in pre_x :
 
 print(countClick)
 
-with open('ExtT1_11_11.csv', "w") as output:
-  writer = csv.writer(output, lineterminator='\n')
-  for val in pre_x:
-    writer.writerow([val])
+with open('output9.csv', "w") as output:
+    writer = csv.writer(output, lineterminator='\n')
+    for val in pre_x:
+        writer.writerow([val])
 
